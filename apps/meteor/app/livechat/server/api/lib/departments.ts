@@ -14,6 +14,7 @@ type FindDepartmentParams = {
 	text?: string;
 	enabled?: boolean;
 	excludeDepartmentId?: string;
+	showArchived?: boolean;
 } & Pagination<ILivechatDepartmentRecord>;
 type FindDepartmentByIdParams = {
 	userId: string;
@@ -29,6 +30,7 @@ type FindDepartmentToAutocompleteParams = {
 		term: string;
 	};
 	onlyMyDepartments?: boolean;
+	showArchived?: boolean;
 };
 type FindDepartmentAgentsParams = {
 	userId: string;
@@ -41,14 +43,17 @@ export async function findDepartments({
 	text,
 	enabled,
 	excludeDepartmentId,
+	showArchived = false,
 	pagination: { offset, count, sort },
 }: FindDepartmentParams): Promise<PaginatedResult<{ departments: ILivechatDepartmentRecord[] }>> {
 	let query = {
 		$or: [{ type: { $eq: 'd' } }, { type: { $exists: false } }],
+		archived: { $ne: !showArchived },
 		...(enabled && { enabled: Boolean(enabled) }),
 		...(text && { name: new RegExp(escapeRegExp(text), 'i') }),
 		...(excludeDepartmentId && { _id: { $ne: excludeDepartmentId } }),
 	};
+	console.log(JSON.stringify(query));
 
 	if (onlyMyDepartments) {
 		query = callbacks.run('livechat.applyDepartmentRestrictions', query, { userId });
@@ -102,6 +107,7 @@ export async function findDepartmentsToAutocomplete({
 	uid,
 	selector,
 	onlyMyDepartments = false,
+	showArchived = false,
 }: FindDepartmentToAutocompleteParams): Promise<{ items: ILivechatDepartmentRecord[] }> {
 	const { exceptions = [] } = selector;
 	let { conditions = {} } = selector;
@@ -110,7 +116,9 @@ export async function findDepartmentsToAutocomplete({
 		conditions = callbacks.run('livechat.applyDepartmentRestrictions', conditions, { userId: uid });
 	}
 
-	const items = await LivechatDepartment.findByNameRegexWithExceptionsAndConditions(selector.term, exceptions, conditions, {
+	const conditionsWithArchived = { archived: { $ne: !showArchived }, ...conditions };
+
+	const items = await LivechatDepartment.findByNameRegexWithExceptionsAndConditions(selector.term, exceptions, conditionsWithArchived, {
 		projection: {
 			_id: 1,
 			name: 1,

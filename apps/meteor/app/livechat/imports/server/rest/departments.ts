@@ -1,9 +1,9 @@
 import { isGETLivechatDepartmentProps, isPOSTLivechatDepartmentProps } from '@rocket.chat/rest-typings';
 import { Match, check } from 'meteor/check';
+import { LivechatDepartment, LivechatDepartmentAgents } from '@rocket.chat/models';
 
 import { API } from '../../../../api/server';
 import { hasPermission } from '../../../../authorization/server';
-import { LivechatDepartment, LivechatDepartmentAgents } from '../../../../models/server';
 import { Livechat } from '../../../server/lib/Livechat';
 import {
 	findDepartments,
@@ -135,14 +135,73 @@ API.v1.addRoute(
 			return API.v1.failure();
 		},
 		delete() {
+			const permissionToManage = hasPermission(this.userId, 'manage-livechat-departments');
+
+			check(this.urlParams, {
+				_id: String,
+			});
+			check(this.bodyParams, {
+				forceRemove: Match.Maybe(Boolean),
+			});
+
+			const { forceRemove, _id } = this.urlParams;
+
+			if (permissionToManage) {
+				// forceRemove is used to prevent the accidental removal of a department
+				if (forceRemove) {
+					if (Livechat.removeDepartment(_id)) {
+						return API.v1.success();
+					}
+				}
+
+				if (Livechat.archiveOrUnarchiveDepartment(_id, true)) {
+					return API.v1.success();
+				}
+			}
+
+			return API.v1.failure();
+		},
+	},
+);
+
+API.v1.addRoute(
+	'livechat/department/:_id/archive',
+	{
+		authRequired: true,
+		permissionsRequired: {
+			POST: { permissions: ['manage-livechat-departments'], operation: 'hasAny' },
+		},
+	},
+	{
+		async post() {
 			check(this.urlParams, {
 				_id: String,
 			});
 
-			if (Livechat.removeDepartment(this.urlParams._id)) {
+			if (Livechat.archiveOrUnarchiveDepartment(this.urlParams._id, true)) {
 				return API.v1.success();
 			}
-			return API.v1.failure();
+		},
+	},
+);
+
+API.v1.addRoute(
+	'livechat/department/:_id/unarchive',
+	{
+		authRequired: true,
+		permissionsRequired: {
+			POST: { permissions: ['manage-livechat-departments'], operation: 'hasAny' },
+		},
+	},
+	{
+		async post() {
+			check(this.urlParams, {
+				_id: String,
+			});
+
+			if (Livechat.archiveOrUnarchiveDepartment(this.urlParams._id, false)) {
+				return API.v1.success();
+			}
 		},
 	},
 );
@@ -152,7 +211,7 @@ API.v1.addRoute(
 	{ authRequired: true, permissionsRequired: { GET: { permissions: ['view-livechat-departments', 'view-l-room'], operation: 'hasAny' } } },
 	{
 		async get() {
-			const { selector, onlyMyDepartments } = this.queryParams;
+			const { selector, onlyMyDepartments, showArchived } = this.queryParams;
 			if (!selector) {
 				return API.v1.failure("The 'selector' param is required");
 			}
@@ -162,6 +221,7 @@ API.v1.addRoute(
 					uid: this.userId,
 					selector: JSON.parse(selector),
 					onlyMyDepartments: onlyMyDepartments === 'true',
+					showArchived: showArchived === 'true',
 				}),
 			);
 		},

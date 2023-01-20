@@ -229,6 +229,12 @@ export const LivechatEnterprise = {
 			}
 		}
 
+		if (department?.archived && departmentData.enabled) {
+			throw new Meteor.Error('error-archived-department-cant-be-enabled', 'Archived departments cant be enabled', {
+				method: 'livechat:saveDepartment',
+			});
+		}
+
 		const defaultValidations = {
 			enabled: Boolean,
 			name: String,
