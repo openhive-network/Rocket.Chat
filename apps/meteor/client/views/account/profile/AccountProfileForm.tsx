@@ -190,7 +190,7 @@ const AccountProfileForm = ({ values, handlers, user, settings, onSaveStateChang
 		return undefined;
 	}, [customFieldsErrors]);
 
-	const verified = user?.emails?.[0]?.verified ?? false;
+	const verified = (user?.emails?.[0]?.verified || false) as boolean;
 
 	const canSave = !(
 		!!passwordError ||
