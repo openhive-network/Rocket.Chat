@@ -131,9 +131,16 @@ function AccountProfileForm({ values, handlers, user, settings, onSaveStateChang
 
 		return undefined;
 	}, [statusText, t]);
-	const {
-		emails: [{ verified = false } = { verified: false }],
-	} = user;
+	// const {
+	// 	emails: [{ verified = false } = { verified: false }],
+	// } = user;
+
+	//
+	// Handle user accounts without email.
+	// See https://github.com/RocketChat/Rocket.Chat/pull/22438/files.
+	//
+
+	const verified = user?.emails?.[0]?.verified || false;
 
 	const canSave = !![!!passwordError, !!emailError, !!usernameError, !!nameError, !!statusTextError].filter(Boolean);
 
