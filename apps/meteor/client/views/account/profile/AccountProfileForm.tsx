@@ -175,7 +175,7 @@ const AccountProfileForm = ({ values, handlers, user, settings, onSaveStateChang
 		return undefined;
 	}, [bio, t]);
 
-	const verified = user?.emails?.[0]?.verified ?? false;
+	const verified = (user?.emails?.[0]?.verified || false) as boolean;
 
 	const canSave = !(!!passwordError || !!emailError || !!usernameError || !!nameError || !!statusTextError || !!bioError);
 
