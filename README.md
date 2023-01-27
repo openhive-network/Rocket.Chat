@@ -8,9 +8,9 @@ Every day, tens of millions of users in over 150 countries and in organizations 
 
  * [Review product documentation](https://docs.rocket.chat)
  * [Review developer documentation](https://developer.rocket.chat)
- 
+
 Using our self-managed offerings you can deploy Rocket.Chat on your own server, or you can use SaaS Rocket.Chat. We offer support for both community as well as commercial plans.
- 
+
 <img src="https://github.com/RocketChat/Rocket.Chat.Artwork/blob/master/Product%20Images/Welcome%20to%20RC%20(Readme).jpg" data-canonical-src="https://github.com/RocketChat/Rocket.Chat.Artwork/blob/master/Product%20Images/Welcome%20to%20RC%20(Readme).jpg" width="919" height="511" />
 
 
@@ -24,7 +24,7 @@ Please see the [requirements documentation](https://docs.rocket.chat/installing-
 Please refer to [Install Rocket.Chat](https://rocket.chat/install) to install your Rocket.Chat instance.
 
 
-## Feature Request 
+## Feature Request
 
 [Rocket.Chat/feature-requests](https://github.com/RocketChat/feature-requests) is used to track Rocket.Chat feature requests and discussions. Click [here](https://github.com/RocketChat/feature-requests/issues/new?template=feature_request.md) to open a new feature request. [Feature Request Forums](https://forums.rocket.chat/c/feature-requests/8) stores the historical archives of old feature requests (up to 2018).
 
@@ -71,3 +71,48 @@ We're hiring developers, support people, and product managers all the time. Plea
 Any other questions, reach out to us at [our website](https://rocket.chat/contact) or you can email us directly at [contact@rocket.chat](mailto:contact@rocket.chat). We’d be happy to help!
 
 
+## Install from Github Workflow Artifacts
+
+You need Github Personal Access Token, see
+[docs](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
+Export it as environment variable `GITHUB_TOKEN`. Then do something like this:
+
+```bash
+cd /tmp
+mkdir -p rocket-chat-build
+cd rocket-chat-build
+
+# Github list artifacts and look for your artifacts id
+curl \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer ${GITHUB_TOKEN}"\
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  https://api.github.com/repos/openhive-network/Rocket.Chat/actions/artifacts
+
+# Or get artifact ID from Github UI, see example link from UI (artifact
+# ID is the last part in URL):
+# https://github.com/openhive-network/Rocket.Chat/suites/10616079470/artifacts/529787943
+
+# Github download artifact
+curl \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer ${GITHUB_TOKEN}"\
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  --location --output rocket-chat-artifacts.zip \
+  https://api.github.com/repos/openhive-network/Rocket.Chat/actions/artifacts/529787943/zip
+
+# Later
+unzip rocket-chat-artifacts.zip
+rm rocket-chat-artifacts.zip
+tar xzf Rocket.Chat.tar.gz
+rm Rocket.Chat.tar.gz
+
+# Follow https://docs.rocket.chat/deploy-rocket.chat/prepare-for-your-rocket.chat-deployment/other-deployment-methods/manual-installation/debian-based-distros/ubuntu
+# to start Rocket Chat from terminal.
+
+# Or copy or create correct Dockerfile alongside unpacked "bundle" directory.
+# You can find correct Dockerfile in repository e.g. here:
+# https://github.com/openhive-network/Rocket.Chat/blob/feat/allow-user-with-empty-email/apps/meteor/.docker/Dockerfile
+# Then build docker image like this:
+docker build -t wojtek/rocket-chat:4.8.7 .
+```
