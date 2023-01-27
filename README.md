@@ -100,3 +100,49 @@ We're hiring developers, support people, and product managers all the time. Plea
 - [Email Newsletter](https://rocket.chat/newsletter)
 
 Any other questions, reach out to us at [our website](https://rocket.chat/contact) or you can email us directly at [contact@rocket.chat](mailto:contact@rocket.chat). We’d be happy to help!
+
+## Install from Github Workflow Artifacts
+
+You need Github Personal Access Token, see
+[docs](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
+Export it as environment variable `GITHUB_TOKEN`. Then do something like this:
+
+```bash
+cd /tmp
+mkdir -p rocket-chat-build
+cd rocket-chat-build
+
+# Github list artifacts and look for your artifacts id
+curl \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer ${GITHUB_TOKEN}"\
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  https://api.github.com/repos/openhive-network/Rocket.Chat/actions/artifacts
+
+# Or get artifact ID from Github UI, see example link from UI (artifact
+# ID is the last part in URL):
+# https://github.com/openhive-network/Rocket.Chat/suites/10616079470/artifacts/529787943
+
+# Github download artifact
+curl \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer ${GITHUB_TOKEN}"\
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  --location --output rocket-chat-artifacts.zip \
+  https://api.github.com/repos/openhive-network/Rocket.Chat/actions/artifacts/529787943/zip
+
+# Later
+unzip rocket-chat-artifacts.zip
+rm rocket-chat-artifacts.zip
+tar xzf Rocket.Chat.tar.gz
+rm Rocket.Chat.tar.gz
+
+# Follow https://docs.rocket.chat/deploy-rocket.chat/prepare-for-your-rocket.chat-deployment/other-deployment-methods/manual-installation/debian-based-distros/ubuntu
+# to start Rocket Chat from terminal.
+
+# Or copy or create correct Dockerfile alongside unpacked "bundle" directory.
+# You can find correct Dockerfile in repository e.g. here:
+# https://github.com/openhive-network/Rocket.Chat/blob/feat/allow-user-with-empty-email/apps/meteor/.docker/Dockerfile
+# Then build docker image like this:
+docker build -t wojtek/rocket-chat:4.8.7 .
+```
