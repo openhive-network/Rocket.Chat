@@ -19,6 +19,7 @@ import { getNewUserRoles } from '../../../../server/services/user/lib/getNewUser
 import { AppEvents, Apps } from '../../../../ee/server/apps/orchestrator';
 import { safeGetMeteorUser } from '../../../utils/server/functions/safeGetMeteorUser';
 import { safeHtmlDots } from '../../../../lib/utils/safeHtmlDots';
+import { logLoginAttempts } from '../lib/logLoginAttempts';
 
 Accounts.config({
 	forbidClientAccountCreation: true,
@@ -322,6 +323,8 @@ Accounts.insertUserDoc = function (...args) {
 };
 
 const validateLoginAttemptAsync = async function (login) {
+	logLoginAttempts(login);
+
 	login = callbacks.run('beforeValidateLogin', login);
 
 	if (!(await isValidLoginAttemptByIp(getClientAddress(login.connection)))) {
