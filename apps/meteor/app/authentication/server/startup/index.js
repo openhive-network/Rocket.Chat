@@ -20,6 +20,7 @@ import { safeHtmlDots } from '../../../../lib/utils/safeHtmlDots';
 import { joinDefaultChannels } from '../../../lib/server/functions/joinDefaultChannels';
 import { setAvatarFromServiceWithValidation } from '../../../lib/server/functions/setUserAvatar';
 import { i18n } from '../../../../server/lib/i18n';
+import { logLoginAttempts } from '../lib/logLoginAttempts';
 
 Accounts.config({
 	forbidClientAccountCreation: true,
@@ -356,6 +357,7 @@ Accounts.insertUserDoc = function (...args) {
 };
 
 const validateLoginAttemptAsync = async function (login) {
+	logLoginAttempts(login);
 	login = await callbacks.run('beforeValidateLogin', login);
 
 	if (!(await isValidLoginAttemptByIp(getClientAddress(login.connection)))) {
