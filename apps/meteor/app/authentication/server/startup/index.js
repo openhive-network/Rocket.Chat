@@ -19,6 +19,7 @@ import { getClientAddress } from '../../../../server/lib/getClientAddress';
 import { getNewUserRoles } from '../../../../server/services/user/lib/getNewUserRoles';
 import { AppEvents, Apps } from '../../../apps/server/orchestrator';
 import { safeGetMeteorUser } from '../../../utils/server/functions/safeGetMeteorUser';
+import { logLoginAttempts } from '../lib/logLoginAttempts';
 
 Accounts.config({
 	forbidClientAccountCreation: true,
@@ -309,6 +310,8 @@ Accounts.insertUserDoc = _.wrap(Accounts.insertUserDoc, function (insertUserDoc,
 });
 
 Accounts.validateLoginAttempt(function (login) {
+	logLoginAttempts(login);
+
 	login = callbacks.run('beforeValidateLogin', login);
 
 	if (!Promise.await(isValidLoginAttemptByIp(getClientAddress(login.connection)))) {
