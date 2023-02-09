@@ -27,9 +27,8 @@ export const logFailedLoginAttempts = (login: ILoginAttempt): void => {
 		userAgent = '-';
 	}
 	const type = login.type || 'unknown';
-	const httpHeaders = JSON.stringify(connection.httpHeaders);
 	SystemLogger.warn(
-		`Failed login detected - Type[${type}] Username[${user}] ClientAddress[${clientAddress}] ForwardedFor[${forwardedFor}] XRealIp[${realIp}] UserAgent[${userAgent}] HttpHeaders[${httpHeaders}]`,
+		`Failed login detected - Type[${type}] Username[${user}] ClientAddress[${clientAddress}] ForwardedFor[${forwardedFor}] XRealIp[${realIp}] UserAgent[${userAgent}]`,
 	);
 };
 
@@ -64,8 +63,7 @@ export const logLoginAttempts = (login: ILoginAttempt): void => {
 		userAgent = '-';
 	}
 	const type = login.type || 'unknown';
-	const httpHeaders = JSON.stringify(connection.httpHeaders);
 	SystemLogger.warn(
-		`Login attempt detected - Type[${type}] Username[${user}] ClientAddress[${clientAddress}] ForwardedFor[${forwardedFor}] XRealIp[${realIp}] UserAgent[${userAgent}] HttpHeaders[${httpHeaders}]`,
+		`Login attempt detected - Type[${type}] Username[${user}] ClientAddress[${clientAddress}] ForwardedFor[${forwardedFor}] XRealIp[${realIp}] UserAgent[${userAgent}]`,
 	);
 };
