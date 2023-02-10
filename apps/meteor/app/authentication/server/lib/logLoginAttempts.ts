@@ -39,7 +39,7 @@ export const logLoginAttempts = (login: ILoginAttempt): void => {
 
 	if (login.type === 'resume') {
 		// `resume` occurs when session is regenerated, e.g. when user
-		// reloads the page.
+		// reloads the page. We don't want to log on this event.
 		return;
 	}
 
