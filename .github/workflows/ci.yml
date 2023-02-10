@@ -480,7 +480,8 @@ jobs:
   deploy:
     name: 🚀 Publish build assets
     runs-on: ubuntu-20.04
-    if: github.event_name == 'release' || github.ref == 'refs/heads/develop'
+    # if: github.event_name == 'release' || github.ref == 'refs/heads/develop'
+    if: ${{ false }}  # disable for now
     needs: [build-gh-docker, release-versions]
 
     steps:
@@ -535,7 +536,7 @@ jobs:
     name: 🚢 Build Docker Image (preview)
     runs-on: ubuntu-20.04
     needs: [build, checks, release-versions]
-    if: github.event_name == 'release' || github.ref == 'refs/heads/develop'
+    # if: github.event_name == 'release' || github.ref == 'refs/heads/develop'
     steps:
       - uses: actions/checkout@v4
 
@@ -562,9 +563,11 @@ jobs:
           password: ${{ secrets.CR_PAT }}
 
   docker-image-publish:
+    if: ${{ false }}  # disable for now
     name: 🚀 Publish Docker Image (main)
     runs-on: ubuntu-20.04
-    needs: [deploy, build-docker-preview, release-versions]
+    # needs: [deploy, build-docker-preview, release-versions]
+    needs: [build-docker-preview, release-versions]
 
     strategy:
       matrix:
@@ -673,6 +676,7 @@ jobs:
           echo "::endgroup::"
 
   services-docker-image-publish:
+    if: ${{ false }}  # disable for now
     name: 🚀 Publish Docker Image (services)
     runs-on: ubuntu-20.04
     needs: [deploy, release-versions]
@@ -810,7 +814,8 @@ jobs:
 
   trigger-dependent-workflows:
     runs-on: ubuntu-latest
-    if: github.event_name == 'release'
+    if: ${{ false }}  # disable for now
+    # if: github.event_name == 'release'
     needs:
       - services-docker-image-publish
       - docker-image-publish
