@@ -24,6 +24,8 @@ curl \
     https://api.github.com/repos/openhive-network/Rocket.Chat/actions/artifacts
 ```
 
+https://github.com/openhive-network/Rocket.Chat/suites/11023273344/artifacts/559585562
+
 Download artifact:
 ```bash
 curl \
@@ -31,7 +33,7 @@ curl \
     -H "Authorization: Bearer ${GITHUB_TOKEN}"\
     -H "X-GitHub-Api-Version: 2022-11-28" \
     --location --output rocket-chat-artifacts.zip \
-    https://api.github.com/repos/openhive-network/Rocket.Chat/actions/artifacts/529787943/zip
+    https://api.github.com/repos/openhive-network/Rocket.Chat/actions/artifacts/559585562/zip
 ```
 
 Later
@@ -75,6 +77,25 @@ tar czf /tmp/rocket.chat.tgz bundle ;
 Upload the file `/tmp/rocket.chat.tgz` as a release asset (binary) to
 Github, either via UI or via
 [API](https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#upload-a-release-asset).
+Example command:
+```bash
+# Get release ID
+curl \
+    -H "Accept: application/vnd.github+json" \
+    -H "Authorization: Bearer ${GITHUB_TOKEN}"\
+    -H "X-GitHub-Api-Version: 2022-11-28" \
+    https://api.github.com/repos/openhive-network/Rocket.Chat/releases
+
+# Upload a file (replace 92699195 with your release ID)
+curl \
+    -X POST \
+    -H "Accept: application/vnd.github+json" \
+    -H "Authorization: Bearer ${GITHUB_TOKEN}"\
+    -H "X-GitHub-Api-Version: 2022-11-28" \
+    -H "Content-Type: application/octet-stream" \
+    https://uploads.github.com/repos/openhive-network/Rocket.Chat/releases/92699195/assets?name=rocket.chat.tgz \
+    --data-binary "@rocket.chat.tgz"
+```
 
 Alternatively you can do the same by downloading relevant Github
 Workflow artifact (see section above) and upload it as release asset.
