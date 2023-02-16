@@ -45,6 +45,24 @@ docker build -t wojtek/rocket-chat:4.8.7 .
 ```
 
 
+## Create release
+
+```bash
+cd apps/meteor/
+meteor build --server-only --directory /tmp/rocket.chat
+cd /tmp/rocket.chat
+tar czf /tmp/rocket.chat.tgz bundle
+```
+
+Create a release on Github, see [Managing releases in a
+repository](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository).
+Create git tag in Github UI, when creating release there.
+
+Upload file `/tmp/rocket.chat.tgz` as a release binary to Github, either
+via UI or via
+[API](https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#upload-a-release-asset).
+
+
 ## Syncing fork
 
 See https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork#syncing-a-fork-branch-from-the-command-line
