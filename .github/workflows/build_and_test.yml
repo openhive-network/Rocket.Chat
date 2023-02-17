@@ -8,7 +8,6 @@ on:
   push:
     branches:
       - develop
-      - play-ci
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
