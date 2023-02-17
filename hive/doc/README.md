@@ -135,7 +135,7 @@ git push --no-verify ;
 
 You need to have working development environment on your machine, see
 project's main README. I recommend to install [Volta](https://volta.sh/)
-on your machine, instead of [nvm](https://github.com/creationix/nvm),
+on your machine, instead of [nvm](https://github.com/creationix/nvm)
 recommended in main README.
 
 Assuming you want to modify code in upstream release `5.4.3` and create
@@ -157,8 +157,8 @@ See [answer by Enrico Campidoglio](https://stackoverflow.com/a/29916361)
 or [article by Agnieszka
 Małaszkiewicz](https://womanonrails.com/git-rebase-onto) to learn about
 `git rebase --onto` quickly. We're going to do `git rebase --onto
-<newparent> <oldparent> <until>` next. Basically we're going to put a
-range of commits with our code, onto `master` at specific commit.
+<newparent> <oldparent> <until>` later. Basically we're going to put a
+range of commits with our code, onto `master` branch at specific commit.
 
 Get commit which tag `5.4.3` points to:
 ```bash
