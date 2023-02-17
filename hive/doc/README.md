@@ -1,7 +1,7 @@
-## Install from Github Workflow Artifacts
+## Install application from Github Workflow Artifacts
 
 You need Github Personal Access Token, see
-[docs](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
+[guide on Github](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 Export it as environment variable `GITHUB_TOKEN`. Then do something like this:
 
 ```bash
@@ -15,7 +15,8 @@ https://github.com/openhive-network/Rocket.Chat/suites/10616079470/artifacts/529
 – artifact ID is the last part in URL.
 
 
-Alternatively list artifacts via API and look for your artifacts ID:
+Alternatively list artifacts via API and look for your artifact ID in
+response:
 ```bash
 curl \
     -H "Accept: application/vnd.github+json" \
@@ -24,9 +25,7 @@ curl \
     https://api.github.com/repos/openhive-network/Rocket.Chat/actions/artifacts
 ```
 
-https://github.com/openhive-network/Rocket.Chat/suites/11023273344/artifacts/559585562
-
-Download artifact:
+Download artifact (replace `559585562` with your artifact ID):
 ```bash
 curl \
     -H "Accept: application/vnd.github+json" \
@@ -36,24 +35,27 @@ curl \
     https://api.github.com/repos/openhive-network/Rocket.Chat/actions/artifacts/559585562/zip
 ```
 
-Later
+Unpack artifact (you need `unzip` command working on your system):
 ```bash
+set +e ;
 unzip rocket-chat-artifacts.zip ;
 rm rocket-chat-artifacts.zip ;
 tar xzf Rocket.Chat.tar.gz ;
 rm Rocket.Chat.tar.gz ;
+set -e ;
 ```
 
-Follow
-https://docs.rocket.chat/deploy-rocket.chat/prepare-for-your-rocket.chat-deployment/other-deployment-methods/manual-installation/debian-based-distros/ubuntu
+Follow guide [Rocket.Chat on
+Ubuntu](https://docs.rocket.chat/deploy-rocket.chat/prepare-for-your-rocket.chat-deployment/other-deployment-methods/manual-installation/debian-based-distros/ubuntu)
 to start Rocket Chat from terminal.
 
-Or copy or create correct Dockerfile alongside unpacked "bundle" directory.
-You can find correct Dockerfile in repository e.g. here:
+Alternatively run application in a docker container. Copy or create
+Dockerfile alongside unpacked `bundle` directory. You can find
+appropriate Dockerfile in repository, for instance here:
 https://github.com/openhive-network/Rocket.Chat/blob/feat/allow-user-with-empty-email/apps/meteor/.docker/Dockerfile.
 Then build docker image like this:
 ```bash
-docker build -t wojtek/rocket-chat:4.8.7 .
+docker build -t bamboo/rocket-chat:4.8.7 .
 ```
 
 
@@ -66,27 +68,31 @@ Create a release on Github, see [Managing releases in a
 repository](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository).
 Create git tag in Github UI, when creating release there.
 
-Build application:
+Build application on your local development machine:
 ```bash
+set +e ;
 cd apps/meteor/ ;
 meteor build --server-only --directory /tmp/rocket.chat ;
 cd /tmp/rocket.chat ;
 tar czf /tmp/rocket.chat.tgz bundle ;
+cd /tmp ;
+rm -rf rocket.chat/ ;
+set -e ;
 ```
 
 Upload the file `/tmp/rocket.chat.tgz` as a release asset (binary) to
 Github, either via UI or via
 [API](https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#upload-a-release-asset).
-Example command:
+Example API commands:
 ```bash
-# Get release ID
+# Get release ID (look for it in json response).
 curl \
     -H "Accept: application/vnd.github+json" \
     -H "Authorization: Bearer ${GITHUB_TOKEN}"\
     -H "X-GitHub-Api-Version: 2022-11-28" \
     https://api.github.com/repos/openhive-network/Rocket.Chat/releases
 
-# Upload a file (replace 92699195 with your release ID)
+# Upload a file (replace 92699195 with your release ID).
 curl \
     -X POST \
     -H "Accept: application/vnd.github+json" \
@@ -98,11 +104,11 @@ curl \
 ```
 
 Alternatively you can do the same by downloading relevant Github
-Workflow artifact (see section above) and upload it as release asset.
+Workflow artifact (see section above) and upload it as a release asset.
 
 ## Syncing fork
 
-See [docs about syncing
+See [guide about syncing
 fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork#syncing-a-fork-branch-from-the-command-line).
 
 Preliminary step (do once);
@@ -117,15 +123,15 @@ git checkout --track origin/master ;
 git pull ;
 git fetch upstream ;
 git merge upstream/master ;
-git push --no-verify;
+git push --no-verify ;
 ```
 
 ## Applying Hive patch onto upstream release
 
-You need to have working development environment, see [main
-README](../readme.md#local-development). I recommended to install
-[Volta](https://volta.sh/) on your machine, instead of
-[nvm](https://github.com/creationix/nvm) recommended by them.
+You need to have working development environment, see project's main
+README. I recommend to install [Volta](https://volta.sh/) on your
+machine, instead of [nvm](https://github.com/creationix/nvm),
+recommended in main README.
 
 Assuming you want to modify code in upstream release `5.4.3` and create
 Hive release `5.4.3-hive.1`.
@@ -146,8 +152,8 @@ See [answer by Enrico Campidoglio](https://stackoverflow.com/a/29916361)
 or [article by Agnieszka
 Małaszkiewicz](https://womanonrails.com/git-rebase-onto) to learn about
 `git rebase --onto` quickly. We're going to do `git rebase --onto
-<newparent> <oldparent> <until>` next. Basically we'll put a range of
-commits with our code onto `master` at specific commit.
+<newparent> <oldparent> <until>` next. Basically we're going to put a
+range of commits with our code, onto `master` at specific commit.
 
 Get commit which tag `5.4.3` points to:
 ```bash
@@ -196,12 +202,11 @@ Install yarn dependencies:
 yarn install --frozen-lockfile
 ```
 Test whether you can start application in development mode, and whether
-you can confirm that our code behave as expected.
+you can confirm that our code behave as expected. Reorganize existing
+commits or add new commits, if you need.
 
-Reorganize existing commits or add new commits, if you need.
-
-Bump version, when you're done. You need to modify following files, see
-earlier commits doing similar thing:
+Bump version to `5.4.3-hive.1`, when you're done. You need to modify
+following files, see earlier commits doing similar thing:
 
 - package.json
 - apps/meteor/package.json
