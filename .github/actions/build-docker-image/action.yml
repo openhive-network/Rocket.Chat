@@ -69,10 +69,8 @@ runs:
       uses: docker/login-action@v2
       with:
         registry: ghcr.io
-        # username: ${{ inputs.username }}
-        # password: ${{ inputs.password }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+        username: ${{ inputs.username }}
+        password: ${{ inputs.password }}
 
     - name: Publish image
       shell: bash
