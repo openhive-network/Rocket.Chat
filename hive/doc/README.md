@@ -68,7 +68,8 @@ Create a release on Github, see [Managing releases in a
 repository](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository).
 Create git tag in Github UI, when creating release there.
 
-Build application on your local development machine:
+Build application on your local development machine and prepare release
+package:
 ```bash
 set +e ;
 cd apps/meteor/ ;
@@ -83,16 +84,20 @@ set -e ;
 Upload the file `/tmp/rocket.chat.tgz` as a release asset (binary) to
 Github, either via UI or via
 [API](https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#upload-a-release-asset).
-Example API commands:
+See example API requests below.
+
+Get release ID (look for it in json response):
 ```bash
-# Get release ID (look for it in json response).
 curl \
     -H "Accept: application/vnd.github+json" \
     -H "Authorization: Bearer ${GITHUB_TOKEN}"\
     -H "X-GitHub-Api-Version: 2022-11-28" \
     https://api.github.com/repos/openhive-network/Rocket.Chat/releases
+```
 
-# Upload a file (replace 92699195 with your release ID).
+Upload a file (replace 92699195 with your release ID) as a release
+asset:
+```bash
 curl \
     -X POST \
     -H "Accept: application/vnd.github+json" \
@@ -106,7 +111,7 @@ curl \
 Alternatively you can do the same by downloading relevant Github
 Workflow artifact (see section above) and upload it as a release asset.
 
-## Syncing fork
+## Syncing fork on development machine
 
 See [guide about syncing
 fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork#syncing-a-fork-branch-from-the-command-line).
@@ -128,9 +133,9 @@ git push --no-verify ;
 
 ## Applying Hive patch onto upstream release
 
-You need to have working development environment, see project's main
-README. I recommend to install [Volta](https://volta.sh/) on your
-machine, instead of [nvm](https://github.com/creationix/nvm),
+You need to have working development environment on your machine, see
+project's main README. I recommend to install [Volta](https://volta.sh/)
+on your machine, instead of [nvm](https://github.com/creationix/nvm),
 recommended in main README.
 
 Assuming you want to modify code in upstream release `5.4.3` and create
