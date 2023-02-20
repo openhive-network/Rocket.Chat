@@ -143,7 +143,7 @@ jobs:
         uses: felixmosh/turborepo-gh-artifacts@v2
         if: "${{ env.TURBO_TEAM != '' }}"
         with:
-          repo-token: ${{ secrets.RC_TURBO_GH_TOKEN }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
           server-token: ${{ secrets.TURBO_SERVER_TOKEN }}
 
       - name: Lint
@@ -183,6 +183,8 @@ jobs:
 
   build-docker-preview:
     runs-on: ubuntu-20.04
+    permissions:
+      packages: write
     needs: [build, release-versions]
     if: github.event_name == 'release' || github.ref == 'refs/heads/develop'
     steps:
@@ -213,11 +215,13 @@ jobs:
           root-dir: /tmp/build
           docker-tag: ${{ needs.release-versions.outputs.gh-docker-tag }}
           release: preview
-          username: ${{ secrets.CR_USER }}
-          password: ${{ secrets.CR_PAT }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
   test:
     runs-on: ubuntu-20.04
+    permissions:
+      packages: write
     needs: [build, release-versions]
 
     strategy:
@@ -270,7 +274,7 @@ jobs:
         uses: felixmosh/turborepo-gh-artifacts@v2
         if: "${{ env.TURBO_TEAM != '' }}"
         with:
-          repo-token: ${{ secrets.RC_TURBO_GH_TOKEN }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
           server-token: ${{ secrets.TURBO_SERVER_TOKEN }}
 
       - name: Unit Test
@@ -304,8 +308,6 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          # username: ${{ secrets.CR_USER }}
-          # password: ${{ secrets.CR_PAT }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -421,6 +423,8 @@ jobs:
 
   test-ee:
     runs-on: ubuntu-20.04
+    permissions:
+      packages: write
     needs: [build, release-versions]
 
     strategy:
@@ -447,7 +451,7 @@ jobs:
         uses: felixmosh/turborepo-gh-artifacts@v2
         if: "${{ env.TURBO_TEAM != '' }}"
         with:
-          repo-token: ${{ secrets.RC_TURBO_GH_TOKEN }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
           server-token: ${{ secrets.TURBO_SERVER_TOKEN }}
 
       - name: yarn install
@@ -498,8 +502,6 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          # username: ${{ secrets.CR_USER }}
-          # password: ${{ secrets.CR_PAT }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -635,7 +637,8 @@ jobs:
 
   deploy:
     runs-on: ubuntu-20.04
-    if: github.event_name == 'release' || github.ref == 'refs/heads/develop'
+    if: ${{ false }}  # disable for now
+    # if: github.event_name == 'release' || github.ref == 'refs/heads/develop'
     needs: [test, test-ee, release-versions]
 
     steps:
@@ -713,7 +716,10 @@ jobs:
           fi
 
   docker-image-publish:
+    if: ${{ false }}  # disable for now
     runs-on: ubuntu-20.04
+    permissions:
+      packages: write
     needs: [deploy, build-docker-preview, release-versions]
 
     strategy:
@@ -735,8 +741,6 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          # username: ${{ secrets.CR_USER }}
-          # password: ${{ secrets.CR_PAT }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -796,7 +800,10 @@ jobs:
           fi
 
   services-docker-image-publish:
+    if: ${{ false }}  # disable for now
     runs-on: ubuntu-20.04
+    permissions:
+      packages: write
     needs: [deploy, release-versions]
 
     strategy:
@@ -814,8 +821,6 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          # username: ${{ secrets.CR_USER }}
-          # password: ${{ secrets.CR_PAT }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
