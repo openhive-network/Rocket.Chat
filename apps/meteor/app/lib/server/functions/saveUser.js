@@ -263,7 +263,9 @@ const handleNickname = (updateUser, nickname) => {
 };
 
 const saveNewUser = function (userData, sendPassword) {
-	validateEmailDomain(userData.email);
+	if (userData.email) {
+		validateEmailDomain(userData.email);
+	}
 
 	const roles = userData.roles || getNewUserRoles();
 	const isGuest = roles && roles.length === 1 && roles.includes('guest');
