@@ -13,18 +13,13 @@ const ModalRegion = lazy(() => import('../modal/ModalRegion'));
 
 const AppRoot: FC = () => {
 	window.addEventListener('storage', (e) => {
-		console.log('storageEvent', e);
 		const redirectToPathname = '/home';
 		if (e.key === 'Meteor.userId') {
 			if (e.newValue) {
 				console.log('storageEvent login');
 				// TODO When user changes we're in trouble – user sees
 				// doubled channels in Channels list in menu.
-			} else {
-				console.log('storageEvent logout');
 			}
-			console.log('storageEvent redirecting to', redirectToPathname);
-
 			window.location.assign(redirectToPathname);
 		}
 	});
