@@ -11,18 +11,32 @@ const AppLayout = lazy(() => import('./AppLayout'));
 const PortalsWrapper = lazy(() => import('./PortalsWrapper'));
 const ModalRegion = lazy(() => import('../modal/ModalRegion'));
 
-const AppRoot: FC = () => (
-	<Suspense fallback={<PageLoading />}>
-		<QueryClientProvider client={queryClient}>
-			<MeteorProvider>
-				<ConnectionStatusBar />
-				<BannerRegion />
-				<AppLayout />
-				<PortalsWrapper />
-				<ModalRegion />
-			</MeteorProvider>
-		</QueryClientProvider>
-	</Suspense>
-);
+const AppRoot: FC = () => {
+	window.addEventListener('storage', (e) => {
+		const redirectToPathname = '/home';
+		if (e.key === 'Meteor.userId') {
+			if (e.newValue) {
+				console.log('storageEvent login');
+				// TODO When user changes we're in trouble – user sees
+				// doubled channels in Channels list in menu.
+			}
+			window.location.assign(redirectToPathname);
+		}
+	});
+
+	return (
+		<Suspense fallback={<PageLoading />}>
+			<QueryClientProvider client={queryClient}>
+				<MeteorProvider>
+					<ConnectionStatusBar />
+					<BannerRegion />
+					<AppLayout />
+					<PortalsWrapper />
+					<ModalRegion />
+				</MeteorProvider>
+			</QueryClientProvider>
+		</Suspense>
+	);
+};
 
 export default AppRoot;
