@@ -38,8 +38,13 @@ export const logLoginAttempts = (login: ILoginAttempt): void => {
 	}
 
 	if (login.type === 'resume') {
+		//
 		// `resume` occurs when session is regenerated, e.g. when user
 		// reloads the page. We don't want to log on this event.
+		//
+		// TODO Unfortunately this also occurs when user logs in via
+		// iframe.
+		//
 		return;
 	}
 
@@ -52,13 +57,13 @@ export const logLoginAttempts = (login: ILoginAttempt): void => {
 	if (!settings.get('Login_Logs_ClientIp')) {
 		clientAddress = '-';
 	}
-	let forwardedFor = connection.httpHeaders && connection.httpHeaders['x-forwarded-for'];
-	let realIp = connection.httpHeaders && connection.httpHeaders['x-real-ip'];
+	let forwardedFor = connection.httpHeaders?.['x-forwarded-for'];
+	let realIp = connection.httpHeaders?.['x-real-ip'];
 	if (!settings.get('Login_Logs_ForwardedForIp')) {
 		forwardedFor = '-';
 		realIp = '-';
 	}
-	let userAgent = connection.httpHeaders && connection.httpHeaders['user-agent'];
+	let userAgent = connection.httpHeaders?.['user-agent'];
 	if (!settings.get('Login_Logs_UserAgent')) {
 		userAgent = '-';
 	}
