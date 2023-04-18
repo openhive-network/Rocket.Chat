@@ -45,3 +45,5 @@ yarn-error.log*
 .idea/
 .exrc
 .envrc
+
+*.log
