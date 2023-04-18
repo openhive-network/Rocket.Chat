@@ -29,14 +29,17 @@ Meteor.startup(() => {
 		const uid = Meteor.userId();
 		if (!uid) {
 			removeLocalUserData();
+			fireGlobalEvent('ready', true);
 			return;
 		}
 		if (!Meteor.status().connected) {
+			fireGlobalEvent('ready', true);
 			return;
 		}
 
 		const user = await synchronizeUserData(uid);
 		if (!user) {
+			fireGlobalEvent('ready', true);
 			return;
 		}
 
@@ -59,6 +62,7 @@ Meteor.startup(() => {
 			status = user.status;
 			fireGlobalEvent('status-changed', status);
 		}
+		fireGlobalEvent('ready', true);
 	});
 
 	Tracker.autorun(async (c) => {
