@@ -25,14 +25,15 @@ curl \
     https://api.github.com/repos/openhive-network/Rocket.Chat/actions/artifacts
 ```
 
-Download artifact (replace `559585562` with your artifact ID):
+Download artifact (replace `<artifact-id>` with your artifact ID):
 ```bash
+export ARTIFACT_ID="<artifact-id>" ;
 curl \
     -H "Accept: application/vnd.github+json" \
     -H "Authorization: Bearer ${GITHUB_TOKEN}"\
     -H "X-GitHub-Api-Version: 2022-11-28" \
     --location --output rocket-chat-artifacts.zip \
-    https://api.github.com/repos/openhive-network/Rocket.Chat/actions/artifacts/559585562/zip
+    "https://api.github.com/repos/openhive-network/Rocket.Chat/actions/artifacts/${ARTIFACT_ID}/zip" ;
 ```
 
 Unpack artifact (you need `unzip` command working on your system):
@@ -95,17 +96,18 @@ curl \
     https://api.github.com/repos/openhive-network/Rocket.Chat/releases
 ```
 
-Upload a file (replace 92699195 with your release ID) as a release
+Upload a file (replace `<release-id>` with your release ID) as a release
 asset:
 ```bash
+export RELEASE_ID="<release-id>" ;
 curl \
     -X POST \
     -H "Accept: application/vnd.github+json" \
     -H "Authorization: Bearer ${GITHUB_TOKEN}"\
     -H "X-GitHub-Api-Version: 2022-11-28" \
     -H "Content-Type: application/octet-stream" \
-    https://uploads.github.com/repos/openhive-network/Rocket.Chat/releases/92699195/assets?name=rocket.chat.tgz \
-    --data-binary "@rocket.chat.tgz"
+    "https://uploads.github.com/repos/openhive-network/Rocket.Chat/releases/${RELEASE_ID}/assets?name=rocket.chat.tgz" \
+    --data-binary "@rocket.chat.tgz" ;
 ```
 
 Alternatively you can do the same by downloading relevant Github
