@@ -9,7 +9,6 @@ import PageLoading from './PageLoading';
 const MeteorProvider = lazy(() => import('../../providers/MeteorProvider'));
 const AppLayout = lazy(() => import('./AppLayout'));
 
-
 const AppRoot = (): ReactElement => {
 	window.addEventListener('storage', (e) => {
 		const redirectToPathname = '/home';
@@ -32,7 +31,7 @@ const AppRoot = (): ReactElement => {
 				</QueryClientProvider>
 			</Suspense>
 		</OutermostErrorBoundary>
-	)
+	);
 };
 
 export default AppRoot;
