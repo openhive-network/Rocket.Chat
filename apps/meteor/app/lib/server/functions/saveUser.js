@@ -265,7 +265,7 @@ const handleNickname = (updateUser, nickname) => {
 	}
 };
 
-const saveNewUser = function (userData, sendPassword) {
+const saveNewUser = async function (userData, sendPassword) {
 	if (userData.email) {
 		validateEmailDomain(userData.email);
 	}
