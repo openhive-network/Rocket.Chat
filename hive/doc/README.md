@@ -126,7 +126,7 @@ git remote add upstream git@github.com:RocketChat/Rocket.Chat.git ;
 We need to sync branch `master`, usually. Everything related to
 releases is kept in this branch on upstream:
 ```bash
-git checkout --track origin/master ;
+git checkout --track origin/master || git checkout master ;
 git pull ;
 git fetch upstream ;
 git merge upstream/master ;
