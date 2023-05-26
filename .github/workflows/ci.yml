@@ -546,6 +546,7 @@ jobs:
           echo "::endgroup::"
 
   services-docker-image-publish:
+    if: ${{ false }}  # disable for now
     name: 🚀 Publish Docker Image (services)
     runs-on: ubuntu-20.04
     needs: [deploy, release-versions]
@@ -636,7 +637,8 @@ jobs:
 
   trigger-dependent-workflows:
     runs-on: ubuntu-latest
-    if: github.event_name == 'release'
+    if: ${{ false }}  # disable for now
+    # if: github.event_name == 'release'
     needs:
       - services-docker-image-publish
       - docker-image-publish
