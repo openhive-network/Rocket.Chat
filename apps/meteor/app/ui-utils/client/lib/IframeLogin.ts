@@ -22,16 +22,12 @@ export class IframeLogin {
 
 	constructor() {
 		Tracker.autorun((c) => {
-			this.enabled = settings.get('Accounts_iframe_enabled');
+			this.enabled = settings.get('Accounts_iframe_enabled') || true;
 			this.reactiveEnabled.set(this.enabled);
 
 			this.iframeUrl = settings.get('Accounts_iframe_url');
 			this.apiUrl = settings.get('Accounts_Iframe_api_url');
 			this.apiMethod = settings.get('Accounts_Iframe_api_method');
-
-			if (this.enabled === false) {
-				return c.stop();
-			}
 
 			if (this.enabled === true && this.iframeUrl && this.apiUrl && this.apiMethod) {
 				c.stop();
