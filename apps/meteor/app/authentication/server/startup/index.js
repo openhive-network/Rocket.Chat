@@ -323,7 +323,18 @@ const insertUserDocAsync = async function (options, user) {
 
 	await addUserRolesAsync(_id, roles);
 
-	// Make user's roles to be present on callback
+	// Make user's roles to be present on callback.
+	// `roles` property must exist and be an array.
+	user = await Users.findOneById(_id);
+	if (!user.roles) {
+		const updateUser = {
+			$set: {
+				roles: [],
+			},
+		};
+		await Users.updateOne({ _id }, updateUser);
+	}
+
 	user = await Users.findOneById(_id, { projection: { username: 1, type: 1 } });
 
 	if (user.username) {
