@@ -131,7 +131,7 @@ export class Authorization extends ServiceClass implements IAuthorization {
 
 			return users.map((user) => ({
 				...user,
-				roles: user.roles.filter((roleId: string) => roleIds.includes(roleId)),
+				roles: (user.roles && Array.isArray(user.roles) && user.roles.filter((roleId: string) => roleIds.includes(roleId))) || [],
 			}));
 		},
 		{ maxAge: 10000 },

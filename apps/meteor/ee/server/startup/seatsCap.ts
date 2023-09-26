@@ -44,7 +44,7 @@ callbacks.add(
 callbacks.add(
 	'beforeActivateUser',
 	async (user: IUser) => {
-		if (user.roles.length === 1 && user.roles.includes('guest')) {
+		if (user.roles?.length === 1 && user.roles?.includes('guest')) {
 			return;
 		}
 

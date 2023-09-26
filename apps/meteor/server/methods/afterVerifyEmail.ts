@@ -26,7 +26,10 @@ Meteor.methods<ServerMethods>({
 		if (user?.emails && Array.isArray(user.emails)) {
 			const verifiedEmail = user.emails.find((email) => email.verified);
 
-			const rolesThatNeedChanges = user.roles.filter((role) => rolesToChangeTo.has(role));
+			let rolesThatNeedChanges: string[] = [];
+			if (user.roles && Array.isArray(user.roles)) {
+				rolesThatNeedChanges = user.roles.filter((role) => rolesToChangeTo.has(role));
+			}
 
 			if (verifiedEmail) {
 				await Promise.all(

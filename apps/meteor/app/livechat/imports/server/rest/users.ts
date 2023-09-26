@@ -109,7 +109,7 @@ API.v1.addRoute(
 				throw new Error('Invalid type');
 			}
 
-			if (user.roles.indexOf(role) !== -1) {
+			if (user.roles?.indexOf(role) > -1) {
 				return API.v1.success({
 					user: _.pick(user, '_id', 'username', 'name', 'status', 'statusLivechat', 'emails', 'livechat'),
 				});

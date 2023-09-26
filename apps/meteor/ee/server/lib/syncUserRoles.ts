@@ -63,7 +63,7 @@ export async function syncUserRoles(
 		throw new Error('error-user-not-found');
 	}
 
-	const existingRoles = user.roles;
+	const existingRoles = user.roles || [];
 	const rolesToAdd = filterRoleList(newRoleList, existingRoles, allowedRoles);
 	const rolesToRemove = filterRoleList(existingRoles, newRoleList, allowedRoles);
 
