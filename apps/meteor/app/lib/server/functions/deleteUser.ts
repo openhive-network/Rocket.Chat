@@ -80,12 +80,12 @@ export async function deleteUser(userId: string, confirmRelinquish = false, dele
 
 		await Subscriptions.removeByUserId(userId); // Remove user subscriptions
 
-		if (user.roles?.includes('livechat-agent')) {
+		if (user.roles.includes('livechat-agent')) {
 			// Remove user as livechat agent
 			await LivechatDepartmentAgents.removeByAgentId(userId);
 		}
 
-		if (user.roles?.includes('livechat-monitor')) {
+		if (user.roles.includes('livechat-monitor')) {
 			// Remove user as Unit Monitor
 			await LivechatUnitMonitors.removeByMonitorId(userId);
 		}
