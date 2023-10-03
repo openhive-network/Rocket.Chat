@@ -13,7 +13,7 @@ export const fireGlobalEvent = (eventName: string, detail?: unknown): void => {
 
 		computation.stop();
 
-		if (enabled) {
+		if (enabled && parent !== window.self) {
 			parent.postMessage(
 				{
 					eventName,
