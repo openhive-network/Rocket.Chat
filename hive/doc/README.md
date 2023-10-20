@@ -87,13 +87,15 @@ Github, either via UI or via
 [API](https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#upload-a-release-asset).
 See example API requests below.
 
-Get release ID (look for it in json response):
+Get release ID (replace `<RELEASE_TAG>` with your release tag name) –
+look for it in json response:
 ```bash
+export RELEASE_TAG="<RELEASE_TAG>" ;
 curl \
     -H "Accept: application/vnd.github+json" \
-    -H "Authorization: Bearer ${GITHUB_TOKEN}"\
+    -H "Authorization: Bearer ${GITHUB_TOKEN}" \
     -H "X-GitHub-Api-Version: 2022-11-28" \
-    https://api.github.com/repos/openhive-network/Rocket.Chat/releases
+    "https://api.github.com/repos/openhive-network/Rocket.Chat/releases/tags/${RELEASE_TAG}"
 ```
 
 Upload a file (replace `<release-id>` with your release ID) as a release
