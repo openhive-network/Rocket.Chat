@@ -1,0 +1,126 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+  # push: # Uncomment to build the artifact on every push
+
+jobs:
+  tool-versions:
+    name: ⚙️ Set up Variables
+    runs-on: ubuntu-24.04
+    outputs:
+      node-version: ${{ steps.node_version.outputs.node-version }}
+      meteor-version: ${{ steps.meteor_version.outputs.meteor-version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            package.json
+            apps/meteor/.meteor/release
+          sparse-checkout-cone-mode: false
+          ref: ${{ github.ref }}
+      - id: node_version
+        run: |
+          set -e
+          NODE_VERSION=$(node -p "require('./package.json').engines.node")
+          echo "NODE_VERSION: ${NODE_VERSION}"
+          echo "node-version=${NODE_VERSION}" >> $GITHUB_OUTPUT
+      - id: meteor_version
+        run: |
+          set -e
+          IFS="@" read -ra METEOR_VERSION_ARRAY <<< $(cat apps/meteor/.meteor/release)
+          METEOR_VERSION="${METEOR_VERSION_ARRAY[1]}"
+          echo "METEOR_VERSION: ${METEOR_VERSION}"
+          echo "meteor-version=${METEOR_VERSION}" >> $GITHUB_OUTPUT
+  build:
+    name: 📦 Build Rocket.Chat
+    needs: [tool-versions]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Display user
+        run: id
+      - name: Install C++ build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ build-essential
+      - name: Install Python 3.10 via conda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          conda-remove-defaults: "true" 
+          python-version: "3.10"
+      - name: Check conda config
+        shell: bash -el {0}
+        run: |
+          conda config --show-sources
+      - name: Cache Node Modules
+        id: cache-node-modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            .turbo/cache
+            .yarn/cache
+            node_modules
+            apps/meteor/node_modules
+            apps/meteor/ee/server/services/node_modules
+          key: node-modules-${{ hashFiles('yarn.lock') }}
+      - name: Set up Node.js ${{ needs.tool-versions.outputs.node-version }}
+        id: node-version
+        uses: actions/setup-node@v4.1.0
+        with:
+          node-version: ${{ needs.tool-versions.outputs.node-version }}
+          # cache: 'yarn'
+      - name: Enable corepack to install Yarn
+        run: corepack enable
+      - name: Install Meteor ${{ needs.tool-versions.outputs.meteor-version }}
+        run: npm install -g meteor@${{ needs.tool-versions.outputs.meteor-version }}
+      - name: Show tool versions
+        shell: bash -el {0}
+        run: |
+          set -e
+          echo "Node $(node --version)"
+          echo "NPM $(npm --version)"
+          echo "Yarn $(yarn --version)"
+          echo "Meteor: $(meteor --version)"
+          conda --version
+          conda env list
+          python --version
+      - name: Install dependencies
+        shell: bash -el {0}
+        run: yarn install
+      - name: Build
+        shell: bash -el {0}
+        run: yarn build:ci
+      - name: Prepare the archive
+        run: |
+          cd /tmp/dist
+          tar czf /tmp/Rocket.Chat.tar.gz bundle
+      - name: Upload the archive as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: /tmp/Rocket.Chat.tar.gz
+          overwrite: true
+  release:
+    name: 🚀 Attach the build to the release
+    needs: [build]
+    if: (github.event_name == 'release')
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Download the archive
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+      - name: Display structure of downloaded files
+        run: ls -lAhR
+      - name: Upload to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: "Rocket.Chat.tar.gz"
+          asset_name: Rocket.Chat.${{ github.ref_name }}.tgz
+          tag: ${{ github.ref }}
+          overwrite: true
