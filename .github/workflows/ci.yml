@@ -55,9 +55,9 @@ jobs:
 
       - id: by-tag
         run: |
-          if echo "$GITHUB_REF_NAME" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' ; then
+          if echo "$GITHUB_REF_NAME" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-hive.[0-9]+)?$' ; then
             RELEASE="latest"
-          elif echo "$GITHUB_REF_NAME" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+-rc\.[0-9]+$' ; then
+          elif echo "$GITHUB_REF_NAME" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-hive.[0-9]+)?-rc\.[0-9]+$' ; then
             RELEASE="release-candidate"
           fi
           echo "RELEASE: ${RELEASE}"
@@ -85,6 +85,7 @@ jobs:
   notify-draft-services:
     name: 🚀 Notify external services - draft
     runs-on: ubuntu-20.04
+    if: ${{ false }}  # disable
     needs: [release-versions]
     steps:
       - uses: actions/checkout@v4
@@ -126,7 +127,8 @@ jobs:
 
   packages-build:
     name: 📦 Build Packages
-    needs: [release-versions, notify-draft-services]
+    # needs: [release-versions, notify-draft-services]
+    needs: [release-versions]
     runs-on: ubuntu-20.04
     steps:
       - name: Github Info
@@ -483,7 +485,8 @@ jobs:
   deploy:
     name: 🚀 Publish build assets
     runs-on: ubuntu-20.04
-    if: github.event_name == 'release' || github.ref == 'refs/heads/develop'
+    # if: github.event_name == 'release' || github.ref == 'refs/heads/develop'
+    if: ${{ false }}  # disable
     needs: [build-gh-docker, release-versions]
 
     steps:
@@ -568,7 +571,8 @@ jobs:
   docker-image-publish:
     name: 🚀 Publish Docker Image (main)
     runs-on: ubuntu-20.04
-    needs: [deploy, build-docker-preview, release-versions]
+    needs: [build-gh-docker, build-docker-preview, release-versions]
+    # needs: [deploy, build-docker-preview, release-versions]
 
     strategy:
       matrix:
@@ -576,7 +580,9 @@ jobs:
         release: ['official', 'preview', 'alpine']
 
     env:
-      IMAGE_NAME: 'rocketchat/rocket.chat'
+      # Move the value from environment to configuration variable
+      # IMAGE_NAME: 'rocketchat/rocket.chat'
+      IMAGE_NAME: ' ${{ vars.IMAGE_NAME }}'
 
     steps:
       - name: Login to DockerHub
@@ -679,7 +685,8 @@ jobs:
   services-docker-image-publish:
     name: 🚀 Publish Docker Image (services)
     runs-on: ubuntu-20.04
-    needs: [deploy, release-versions]
+    # needs: [deploy, release-versions]
+    needs: [build-gh-docker, release-versions]
 
     strategy:
       matrix:
@@ -718,7 +725,8 @@ jobs:
 
       - name: Publish Docker images
         run: |
-          DH_IMAGE_NAME="rocketchat/${{ matrix.service }}-service"
+          # DH_IMAGE_NAME="rocketchat/${{ matrix.service }}-service"
+          DH_IMAGE_NAME="${{ vars.IMAGE_REPOSITORY }}/${{ matrix.service }}-service"
 
           # 'develop' or 'tag'
           DOCKER_TAG=$GITHUB_REF_NAME
@@ -768,6 +776,7 @@ jobs:
   notify-services:
     name: 🚀 Notify external services
     runs-on: ubuntu-20.04
+    if: ${{ false }}  # disable
     needs:
       - services-docker-image-publish
       - docker-image-publish
@@ -814,7 +823,8 @@ jobs:
 
   trigger-dependent-workflows:
     runs-on: ubuntu-latest
-    if: github.event_name == 'release'
+    # if: github.event_name == 'release'
+    if: ${{ false }}  # disable
     needs:
       - services-docker-image-publish
       - docker-image-publish
@@ -830,7 +840,8 @@ jobs:
   docs-update:
     name: Update Version Durability
 
-    if: github.event_name == 'release'
+    # if: github.event_name == 'release'
+    if: ${{ false }}  # disable
     needs:
       - services-docker-image-publish
       - docker-image-publish
